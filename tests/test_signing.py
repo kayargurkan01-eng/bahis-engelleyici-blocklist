@@ -107,3 +107,19 @@ def test_committed_public_key_and_fingerprint():
     root = Path(__file__).resolve().parent.parent / "signing"
     pub = public_key_from_b64((root / "public_key.b64").read_text())
     assert fingerprint(pub) == (root / "public_key.fingerprint").read_text().strip()
+
+
+def test_release_assets_skip_empty_data_but_keep_signatures(tmp_path):
+    from src.manifest import EMPTY_SHA256, release_asset_names
+    import hashlib
+    assert hashlib.sha256(b"").hexdigest() == EMPTY_SHA256
+    d = write_build(tmp_path)
+    (d / "allowlist.bin").write_bytes(b"")
+    (d / "packages.txt").write_bytes(b"")
+    sign_dir(d, TEST_ONLY_KEY)
+    names = release_asset_names(d)
+    assert "allowlist.bin" not in names and "packages.txt" not in names
+    for n in SIGNED_FILES:
+        assert f"{n}.sig" in names
+    assert {"blocklist.bin", "patterns.txt", "manifest.json"} <= set(names)
+    assert all((d / n).stat().st_size > 0 for n in names)
