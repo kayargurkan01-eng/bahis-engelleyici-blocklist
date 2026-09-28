@@ -128,3 +128,36 @@ def content_shas(m: dict) -> tuple[str, str, str, str]:
     """İçerik değişikliği karşılaştırması için 4 artifact SHA'sı (zaman alanları hariç)."""
     a = m["artifacts"]
     return (a["blocklist"]["sha256"], a["allowlist"]["sha256"], a["patterns"]["sha256"], a["packages"]["sha256"])
+
+
+EMPTY_SHA256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+
+
+def release_asset_names(directory) -> list[str]:
+    """Release'e yüklenecek dosyalar.
+
+    GitHub Releases 0 baytlık dosya kabul etmez (HTTP 400 Bad Content-Length).
+    Bu yüzden boş VERİ dosyaları yüklenmez; `.sig` dosyaları (her zaman 64 bayt)
+    her zaman yüklenir. Uygulama, manifestte boyutu 0 (bin: bytes == 0;
+    txt: sha256 == EMPTY_SHA256) olan dosyayı indirmez, boş kabul eder ve
+    imzasını yine doğrular.
+    """
+    from pathlib import Path
+
+    d = Path(directory)
+    names = []
+    for name in [*FILES.values(), MANIFEST_FILE]:
+        if (d / name).stat().st_size > 0:
+            names.append(name)
+        names.append(f"{name}.sig")
+    return names
+
+
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) == 3 and sys.argv[1] == "assets":
+        print("\n".join(release_asset_names(sys.argv[2])))
+    else:
+        print("kullanım: python -m src.manifest assets <dizin>", file=sys.stderr)
+        sys.exit(2)

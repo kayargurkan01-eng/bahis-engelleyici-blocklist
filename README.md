@@ -32,6 +32,11 @@ imzayı doğrular, sonra diğer dosyaları manifestteki **değişmez** `releaseT
   `a-z 0-9 -` → `www.`/`m.`/`mobile.` öneki atılır (kalan public suffix değilse)
   → public suffix girdileri (`com`, `com.tr`, ...) atılır.
 - `.sig`: dosyanın tam baytları üzerinde 64 baytlık ham Ed25519 imzası.
+- **Boş dosyalar:** GitHub Releases 0 baytlık dosya kabul etmez. Boş veri dosyası
+  (ör. henüz girdisi olmayan `allowlist.bin`) release'e YÜKLENMEZ; `.sig`'i her zaman
+  yüklenir. Uygulama manifestte `bytes == 0` (bin) veya `sha256 ==
+  e3b0c442…b855` (boş dosyanın SHA-256'sı, txt) gördüğü dosyayı indirmez, boş kabul
+  eder ve imzasını yine doğrular.
 - Python ↔ Kotlin uyumu `golden/vectors.json` ile iki repoda da test edilir.
 
 ## Geliştirme

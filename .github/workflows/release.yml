@@ -102,12 +102,12 @@ jobs:
               print(f"- {s['name']}: ham {s['raw']}, kanonik {s['canonical']}")
           print("\nTüm dosyalar Ed25519 ile imzalıdır (`.sig`). Kaynak/lisans: THIRD_PARTY_NOTICES.md")
           EOF
+          # 0 baytlık veri dosyaları yüklenmez (GitHub kabul etmez); .sig'ler her zaman yüklenir.
+          mapfile -t ASSETS < <(python -m src.manifest assets output)
+          echo "Yüklenecek: ${ASSETS[*]}"
           cd output
           gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
-            --title "$TAG" --notes-file ../release-notes.md --latest \
-            blocklist.bin blocklist.bin.sig allowlist.bin allowlist.bin.sig \
-            patterns.txt patterns.txt.sig packages.txt packages.txt.sig \
-            manifest.json manifest.json.sig
+            --title "$TAG" --notes-file ../release-notes.md --latest "${ASSETS[@]}"
 
       - name: Yayin sonrasi duman testi (indir + SHA + imza)
         if: steps.build.outputs.changed == 'true'
@@ -116,7 +116,9 @@ jobs:
         run: |
           mkdir -p smoke
           for f in blocklist.bin allowlist.bin patterns.txt packages.txt manifest.json; do
-            for x in "$f" "$f.sig"; do
+            names="$f.sig"
+            if [ -s "output/$f" ]; then names="$f $f.sig"; else : > "smoke/$f"; fi
+            for x in $names; do
               curl -fsSL --retry 5 --retry-delay 5 -o "smoke/$x" \
                 "https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/$x"
               cmp "smoke/$x" "output/$x"
