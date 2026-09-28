@@ -1,0 +1,47 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bagimliliklar (sabit surumler)
+        run: pip install -r requirements.txt
+
+      - name: Yasakli kaynak kontrolu
+        run: python -m src.sources --check-config
+
+      - name: Birim testleri
+        run: python -m pytest -q
+
+      - name: Golden vektorler guncel mi
+        run: python -m golden.generate --check
+
+      - name: Cevrimdisi build + determinizm (iki kez, byte-for-byte)
+        run: |
+          for d in a b; do
+            python -m src.build --out "out-$d" --offline tests/fixtures/upstream \
+              --sources-dir tests/fixtures/local --generated-at 2026-09-28T01:00:00Z > /dev/null
+          done
+          for f in blocklist.bin allowlist.bin patterns.txt packages.txt manifest.json; do
+            cmp "out-a/$f" "out-b/$f"
+          done
+          echo "Deterministik: iki build aynı."
+
+      - name: Uretim kaynak dosyalari gecerli mi (sources/)
+        run: |
+          python -m src.build --out out-prod-local --offline tests/fixtures/upstream \
+            --sources-dir sources --generated-at 2026-09-28T01:00:00Z > /dev/null

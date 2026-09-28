@@ -1,0 +1,129 @@
+name: release
+
+# Günlük 01:00 UTC (Türkiye 04:00) + elle tetikleme.
+on:
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash  # -eo pipefail
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bagimliliklar (sabit surumler)
+        run: pip install -r requirements.txt
+
+      - name: Yasakli kaynak kontrolu
+        run: python -m src.sources --check-config
+
+      - name: Testler
+        run: python -m pytest -q
+
+      - name: Genel anahtar mevcut mu
+        run: |
+          test -s signing/public_key.b64 || { echo "signing/public_key.b64 yok: key-setup tamamlanmadan yayın yapılmaz."; exit 1; }
+          echo "Genel anahtar parmak izi: $(cat signing/public_key.fingerprint)"
+
+      - name: Onceki release manifesti (imza dogrulamali)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p prev
+          if gh release view --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release download --repo "$GITHUB_REPOSITORY" --pattern 'manifest.json*' --dir prev
+            python -m src.signing verify-file prev/manifest.json prev/manifest.json.sig signing/public_key.b64
+          else
+            echo "Önceki release yok (ilk yayın)."
+          fi
+
+      - name: Kaynaklari indir ve listeyi uret
+        id: build
+        run: python -m src.build --out output --previous-manifest prev/manifest.json
+
+      - name: Degisiklik yok
+        if: steps.build.outputs.changed != 'true'
+        run: echo "İçerik (4 artifact SHA-256) önceki release ile aynı; yeni release oluşturulmadı."
+
+      - name: Etiket zaten var mi (uzerine yazma yok)
+        if: steps.build.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.build.outputs.tag }}
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" > /dev/null 2>&1 \
+             || gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "$TAG zaten var; üzerine yazılmaz."; exit 1
+          fi
+
+      - name: Imzala
+        if: steps.build.outputs.changed == 'true'
+        env:
+          BLOCKLIST_ED25519_PRIVATE_KEY_B64: ${{ secrets.BLOCKLIST_ED25519_PRIVATE_KEY_B64 }}
+        run: |
+          set +x
+          if [ -z "${BLOCKLIST_ED25519_PRIVATE_KEY_B64}" ]; then echo "İmza secret'ı tanımlı değil."; exit 1; fi
+          python -m src.signing sign output
+
+      - name: Imzalari depodaki genel anahtarla dogrula
+        if: steps.build.outputs.changed == 'true'
+        run: python -m src.signing verify output signing/public_key.b64
+
+      - name: Release olustur
+        if: steps.build.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.build.outputs.tag }}
+        run: |
+          python - <<'EOF' > release-notes.md
+          import json
+          r = json.load(open("output/build_report.json"))
+          m = json.load(open("output/manifest.json"))
+          f = r["final"]
+          print(f"Otomatik engel listesi sürümü `{m['releaseTag']}` ({m['generatedAt']}).\n")
+          print(f"- Blocklist: {f['blocklist']} · Allowlist: {f['allowlist']} · Desen: {f['patterns']} · Paket: {f['packages']}")
+          for s in r["sources"]:
+              print(f"- {s['name']}: ham {s['raw']}, kanonik {s['canonical']}")
+          print("\nTüm dosyalar Ed25519 ile imzalıdır (`.sig`). Kaynak/lisans: THIRD_PARTY_NOTICES.md")
+          EOF
+          cd output
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "$TAG" --notes-file ../release-notes.md --latest \
+            blocklist.bin blocklist.bin.sig allowlist.bin allowlist.bin.sig \
+            patterns.txt patterns.txt.sig packages.txt packages.txt.sig \
+            manifest.json manifest.json.sig
+
+      - name: Yayin sonrasi duman testi (indir + SHA + imza)
+        if: steps.build.outputs.changed == 'true'
+        env:
+          TAG: ${{ steps.build.outputs.tag }}
+        run: |
+          mkdir -p smoke
+          for f in blocklist.bin allowlist.bin patterns.txt packages.txt manifest.json; do
+            for x in "$f" "$f.sig"; do
+              curl -fsSL --retry 5 --retry-delay 5 -o "smoke/$x" \
+                "https://github.com/$GITHUB_REPOSITORY/releases/download/$TAG/$x"
+              cmp "smoke/$x" "output/$x"
+            done
+          done
+          python -m src.signing verify smoke signing/public_key.b64
+          curl -fsSL --retry 5 --retry-delay 5 -o smoke/latest-manifest.json \
+            "https://github.com/$GITHUB_REPOSITORY/releases/latest/download/manifest.json"
+          cmp smoke/latest-manifest.json output/manifest.json
+          echo "Duman testi başarılı: $TAG"

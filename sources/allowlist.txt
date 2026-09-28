@@ -1,0 +1,3 @@
+# Allowlist: yanlış pozitif olduğu DOĞRULANMIŞ domainler.
+# Satır başına bir domain. Alt domainleri de kapsar ve uygulamada blocklist'ten
+# ve desen kurallarından ÖNCE uygulanır.

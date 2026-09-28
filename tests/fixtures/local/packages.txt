@@ -1,0 +1,4 @@
+# TEST ONLY
+com.ornek.test.ikinci
+com.ornek.test.bahis
+com.ornek.test.bahis

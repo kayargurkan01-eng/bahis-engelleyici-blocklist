@@ -1,0 +1,315 @@
+{
+  "formatVersion": 1,
+  "description": "Python pipeline ile Kotlin motoru arasindaki parity vektorleri. Elle degistirmeyin; golden/generate.py uretir.",
+  "normalize": [
+    {
+      "input": "ornek.com",
+      "expected": "ornek.com"
+    },
+    {
+      "input": "OrnekBahis.COM",
+      "expected": "ornekbahis.com"
+    },
+    {
+      "input": "BITCOIN.COM",
+      "expected": "bitcoin.com"
+    },
+    {
+      "input": "  site.com \t",
+      "expected": "site.com"
+    },
+    {
+      "input": "\nsite.com\n",
+      "expected": "site.com"
+    },
+    {
+      "input": "site.com.",
+      "expected": "site.com"
+    },
+    {
+      "input": "site.com...",
+      "expected": "site.com"
+    },
+    {
+      "input": "b\u00fccher.com",
+      "expected": "xn--bcher-kva.com"
+    },
+    {
+      "input": "B\u00dcCHER.COM",
+      "expected": "xn--bcher-kva.com"
+    },
+    {
+      "input": "\u015fans.com.tr",
+      "expected": "xn--ans-rza.com.tr"
+    },
+    {
+      "input": "\u015eANS.COM.TR",
+      "expected": "xn--ans-rza.com.tr"
+    },
+    {
+      "input": "\u0130stanbul.com",
+      "expected": "xn--istanbul-o0e.com"
+    },
+    {
+      "input": "\u0131\u011f\u00fc\u015f\u00f6\u00e7.test",
+      "expected": "xn--7ca3ar3lrdsn.test"
+    },
+    {
+      "input": "\uff22\uff35\uff23\uff28\uff25\uff32.com",
+      "expected": "bucher.com"
+    },
+    {
+      "input": "\u00df.com",
+      "expected": "ss.com"
+    },
+    {
+      "input": "\u4f8b\u3048.\u30c6\u30b9\u30c8",
+      "expected": "xn--r8jz45g.xn--zckzah"
+    },
+    {
+      "input": "bad\u3002com",
+      "expected": "bad.com"
+    },
+    {
+      "input": "a\u200bb.com",
+      "expected": "ab.com"
+    },
+    {
+      "input": "xn--bcher-kva.com",
+      "expected": "xn--bcher-kva.com"
+    },
+    {
+      "input": "ab--cd.com",
+      "expected": "ab--cd.com"
+    },
+    {
+      "input": "gecersiz_domain.com",
+      "expected": null
+    },
+    {
+      "input": "site.com:443",
+      "expected": null
+    },
+    {
+      "input": "site.com/yol",
+      "expected": null
+    },
+    {
+      "input": "https://site.com",
+      "expected": null
+    },
+    {
+      "input": "site com",
+      "expected": null
+    },
+    {
+      "input": "-bad-.com",
+      "expected": null
+    },
+    {
+      "input": "bad-.com",
+      "expected": null
+    },
+    {
+      "input": "a..b.com",
+      "expected": null
+    },
+    {
+      "input": ".site.com",
+      "expected": null
+    },
+    {
+      "input": "",
+      "expected": null
+    },
+    {
+      "input": "   ",
+      "expected": null
+    },
+    {
+      "input": "...",
+      "expected": null
+    },
+    {
+      "input": "xn--.com",
+      "expected": null
+    },
+    {
+      "input": "\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc\u00fc.com",
+      "expected": null
+    },
+    {
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com",
+      "expected": null
+    },
+    {
+      "input": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com",
+      "expected": null
+    },
+    {
+      "input": "bad\u0000.com",
+      "expected": null
+    },
+    {
+      "input": "www.site.com",
+      "expected": "www.site.com"
+    },
+    {
+      "input": "m.site.com",
+      "expected": "m.site.com"
+    },
+    {
+      "input": "mobile.site.com",
+      "expected": "mobile.site.com"
+    },
+    {
+      "input": "1.2.3.4",
+      "expected": "1.2.3.4"
+    },
+    {
+      "input": "localhost",
+      "expected": "localhost"
+    }
+  ],
+  "listCanonical": [
+    {
+      "input": "www.site.com",
+      "expected": "site.com"
+    },
+    {
+      "input": "m.site.com",
+      "expected": "site.com"
+    },
+    {
+      "input": "mobile.site.com",
+      "expected": "site.com"
+    },
+    {
+      "input": "WWW.Site.COM.",
+      "expected": "site.com"
+    },
+    {
+      "input": "mail.site.com",
+      "expected": "mail.site.com"
+    },
+    {
+      "input": "wwwsite.com",
+      "expected": "wwwsite.com"
+    },
+    {
+      "input": "www.site.com.tr",
+      "expected": "site.com.tr"
+    },
+    {
+      "input": "www.com.tr",
+      "expected": "www.com.tr"
+    },
+    {
+      "input": "m.gov.tr",
+      "expected": "m.gov.tr"
+    },
+    {
+      "input": "www.com",
+      "expected": "www.com"
+    },
+    {
+      "input": "com",
+      "expected": null
+    },
+    {
+      "input": "com.tr",
+      "expected": null
+    },
+    {
+      "input": "tr",
+      "expected": null
+    },
+    {
+      "input": "gov.nc.tr",
+      "expected": null
+    },
+    {
+      "input": "a.gov.nc.tr",
+      "expected": "a.gov.nc.tr"
+    },
+    {
+      "input": "ornek.tr",
+      "expected": "ornek.tr"
+    },
+    {
+      "input": "www.ornek.tr",
+      "expected": "ornek.tr"
+    },
+    {
+      "input": "a.b.site.com.tr",
+      "expected": "a.b.site.com.tr"
+    },
+    {
+      "input": "b\u00fccher.com",
+      "expected": "xn--bcher-kva.com"
+    },
+    {
+      "input": "www.b\u00fccher.com",
+      "expected": "xn--bcher-kva.com"
+    },
+    {
+      "input": "gecersiz_domain.com",
+      "expected": null
+    },
+    {
+      "input": "",
+      "expected": null
+    },
+    {
+      "input": "localhost",
+      "expected": null
+    }
+  ],
+  "hash": [
+    {
+      "input": "",
+      "unsigned": "0xef46db3751d8e999",
+      "signed": -1205034819632174695
+    },
+    {
+      "input": "a",
+      "unsigned": "0xd24ec4f1a98c6e5b",
+      "signed": -3292477735350538661
+    },
+    {
+      "input": "abc",
+      "unsigned": "0x44bc2cf5ad770999",
+      "signed": 4952883123889572249
+    },
+    {
+      "input": "site.com",
+      "unsigned": "0xe8f2b2d514ebcb08",
+      "signed": -1661068684297516280
+    },
+    {
+      "input": "b.site.com",
+      "unsigned": "0x6bcf2acbd96a71b4",
+      "signed": 7768474937251754420
+    },
+    {
+      "input": "xn--bcher-kva.com",
+      "unsigned": "0xdfd2c71ee47f1837",
+      "signed": -2318571922645903305
+    },
+    {
+      "input": "Nobody inspects the spammish repetition",
+      "unsigned": "0xfbcea83c8a378bf1",
+      "signed": -302119147016844303
+    },
+    {
+      "input": "0123456789abcdef0123456789abcdef0123",
+      "unsigned": "0xc4255ba3d1af5461",
+      "signed": -4312940308981656479
+    },
+    {
+      "input": "cok-uzun-bir-alt-alan-adi.ornek-engelli-bir-site.test",
+      "unsigned": "0x4c348dc8b1d49a29",
+      "signed": 5491169738787953193
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+# Bilinen bahis/kumar uygulamalarının Android paket adları (birebir eşleşme).
+# Yalnızca DOĞRULANMIŞ paket adları eklenir.

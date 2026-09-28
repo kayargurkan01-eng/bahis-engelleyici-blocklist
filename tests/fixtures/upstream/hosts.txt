@@ -1,0 +1,7 @@
+# TEST ONLY
+127.0.0.1 localhost
+0.0.0.0 0.0.0.0
+0.0.0.0 ortak.test
+0.0.0.0 hosts-engelli.test mobile.hosts-ikinci.test
+0.0.0.0 alt.kumar.com.tr # yorum
+0.0.0.0 ornek.tr

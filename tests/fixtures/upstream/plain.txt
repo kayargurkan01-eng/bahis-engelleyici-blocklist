@@ -1,0 +1,9 @@
+# TEST ONLY - sentetik .test domainleri
+ornek-engelli.test
+WWW.Ikinci-Engelli.TEST.
+m.ucuncu.test
+bücher-bahis.test
+gecersiz_domain.test
+com.tr
+ortak.test
+guvenli.test
