@@ -101,3 +101,9 @@ def test_public_key_b64_and_fingerprint():
     assert len(fingerprint(pub)) == 64
     with pytest.raises(SigningError):
         public_key_from_b64(base64.b64encode(b"x" * 31).decode())
+
+
+def test_committed_public_key_and_fingerprint():
+    root = Path(__file__).resolve().parent.parent / "signing"
+    pub = public_key_from_b64((root / "public_key.b64").read_text())
+    assert fingerprint(pub) == (root / "public_key.fingerprint").read_text().strip()

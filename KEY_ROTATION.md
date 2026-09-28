@@ -4,7 +4,12 @@
 
 - Algoritma: Ed25519 (ham 32 baytlık anahtarlar, base64)
 - Genel anahtar: [`signing/public_key.b64`](signing/public_key.b64)
-- Genel anahtar parmak izi (ham 32 baytın SHA-256'sı): `signing/public_key.fingerprint`
+- Genel anahtar (base64): `dfXrt8tiU/msRio6ci4miQiniLo6TZ9tZ+TDJbatC8s=`
+- Genel anahtar parmak izi (ham 32 baytın SHA-256'sı):
+  `1d388eb12670a36147e53967028cd01b939dd71a3a2e00c3dbac0d309250d9db`
+  ([`signing/public_key.fingerprint`](signing/public_key.fingerprint))
+- Oluşturulma: 2026-09-28, key-setup iş akışı çalıştırması
+  https://github.com/kayargurkan01-eng/bahis-engelleyici-blocklist/actions/runs/36473453573
 - Özel anahtar: **yalnızca** bu reponun GitHub Actions secret'ında,
   `BLOCKLIST_ED25519_PRIVATE_KEY_B64`. Repoda, logda, artifact'ta veya başka bir
   yerde kopyası YOKTUR.
