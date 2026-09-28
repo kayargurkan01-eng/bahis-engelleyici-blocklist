@@ -1,0 +1,3 @@
+# Türkiye manuel engel listesi.
+# Satır başına bir domain. Yalnızca ELLE DOĞRULANMIŞ kumar/bahis domainleri eklenir.
+# Tahmini veya doğrulanmamış domain EKLEMEYİN.

@@ -1,0 +1,4 @@
+[
+  {"name": "fixture-plain", "url": "https://example.test/plain.txt", "license": "Unlicense", "fmt": "plain", "min_entries": 3, "file": "plain.txt", "commit": "0000000000000000000000000000000000000001"},
+  {"name": "fixture-hosts", "url": "https://example.test/hosts", "license": "MIT", "fmt": "hosts", "min_entries": 3, "file": "hosts.txt"}
+]

@@ -1,0 +1,4 @@
+# TEST ONLY
+ornekmarka	1	4
+ikincimarka	2	3
+ornekmarka	1	4

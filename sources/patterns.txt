@@ -1,0 +1,3 @@
+# Numaralı marka aileleri: kök<TAB>minRakam<TAB>maxRakam
+# Serbest regex YOK. Kök en az 4 karakter, harfle biten, genel kelime olmayan
+# DOĞRULANMIŞ bir marka adı olmalıdır (bkz. src/parsers.py validate_rule).
